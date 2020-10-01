@@ -19,6 +19,16 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class AntaeusDal(private val db: Database) {
+
+    fun fetchInvoice(status: InvoiceStatus): List<Invoice> {
+        return transaction(db) {
+            InvoiceTable
+                .selectAll()
+                .map { it.toInvoice() }
+                .filter { it.status == status }
+        }
+    }
+
     fun fetchInvoice(id: Int): Invoice? {
         // transaction(db) runs the internal query as a new database transaction.
         return transaction(db) {
