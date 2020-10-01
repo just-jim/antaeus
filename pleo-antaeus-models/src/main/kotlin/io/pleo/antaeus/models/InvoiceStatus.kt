@@ -4,5 +4,6 @@ enum class InvoiceStatus {
     PENDING,
     PAID,
     ERROR,
-    FATAL_ERROR
+    FATAL_ERROR,
+    INSUFFICIENT_FUNDS
 }

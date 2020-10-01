@@ -33,9 +33,6 @@ class BillingService(
         logger.info{"~~~~~~~~~~~~"}
         logger.info{"Processing invoice with id: ${invoice.id} "}
 
-        //This is the final status that the invoice will have at the end of the process
-        var status: InvoiceStatus = invoice.status
-
         try {
             //Get the customer
             val customer = customerService.fetch(invoice.customerId)
@@ -49,29 +46,27 @@ class BillingService(
             if(!payment)
                 throw UnsuccessfulPaymentException()
 
-            status = InvoiceStatus.PAID;
+            invoice.status = InvoiceStatus.PAID;
         }
         catch (e: CustomerNotFoundException){
-            status = InvoiceStatus.FATAL_ERROR
+            invoice.status = InvoiceStatus.FATAL_ERROR
             logger.info("The customer ${invoice.customerId} of the invoice was not found.")
         }
         catch (e: CurrencyMismatchException){
-            status = InvoiceStatus.FATAL_ERROR
+            invoice.status = InvoiceStatus.FATAL_ERROR
             logger.info("The currency of the customer does not match the currency of the invoice")
         }
         catch (e: NetworkException){
-            status = InvoiceStatus.ERROR
+            invoice.status = InvoiceStatus.ERROR
             logger.info("There was a network error while charging the invoice")
         }
         catch (e: UnsuccessfulPaymentException){
-            status = InvoiceStatus.ERROR
-            logger.info("The payment on the PaymentProvider wan unsuccessful")
+            invoice.status = InvoiceStatus.INSUFFICIENT_FUNDS
+            logger.info("The payment on the PaymentProvider wan unsuccessful. The customer has insufficient funds")
         }
 
-        // If the status of the invoice changed, update the invoice on the DB
-        if(status != invoice.status) {
-            invoiceService.updateInvoice(Invoice(invoice.id, invoice.customerId, invoice.amount, status))
-            logger.info("The invoice updated it's status to $status")
-        }
+        // Update the invoice status in the DB
+        invoiceService.updateInvoice(invoice)
+        logger.info("The invoice updated it's status to ${invoice.status}")
     }
 }

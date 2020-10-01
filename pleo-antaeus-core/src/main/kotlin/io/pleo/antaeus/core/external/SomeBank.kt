@@ -1,6 +1,7 @@
 package io.pleo.antaeus.core.external
 
 import io.pleo.antaeus.core.exceptions.CurrencyMismatchException
+import io.pleo.antaeus.core.exceptions.CustomerNotFoundException
 import io.pleo.antaeus.core.exceptions.NetworkException
 import io.pleo.antaeus.models.Customer
 import io.pleo.antaeus.models.Invoice
@@ -11,17 +12,22 @@ class SomeBank : PaymentProvider {
 
     override fun charge(invoice: Invoice, customer:Customer): Boolean {
 
-        //In order to throw a currencyMismatchException we have to compare customer currency with invoice currency
+        //Randomly with a chance of 5% throw a CustomerNotFoundException to simulate that the payment provider does not have this customer anymore
+        if(Random.nextInt(from=0,until = 100) <= 5){
+            throw CustomerNotFoundException(customer.id)
+        }
+
+        //Randomly with a chance of 5% throw a CurrencyMismatchException to simulate that the customer changed his currency on the payment provider
         if(customer.currency != invoice.amount.currency){
             throw CurrencyMismatchException(invoice.id,customer.id)
         }
 
-        //Randomly with a chance of 10% throw NetworkException
-        if(Random.nextInt(from=1,until = 11) == 1){
+        //Randomly with a chance of 5% throw a NetworkException to simulate a Network error
+        if(Random.nextInt(from=0,until = 100) <= 5){
             throw NetworkException()
         }
 
-        //Randomly with a chance of 50% return false
-        return (Random.nextInt(from=1,until = 3) == 1)
+        //Randomly with a chance of 30% return false to simulate customer insufficient funds
+        return (Random.nextInt(from=0,until = 100) <= 30)
     }
 }

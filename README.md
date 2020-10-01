@@ -1,8 +1,9 @@
 ## Thought Process
 
 In this point of the development I decided to handle the exceptions that may occur during the charging process of the invoices. The basic idea is that if during the charging process something goes wrong, the invoice will acquire a status of either:
-- FATAL_ERROR. This status will mean that something went so wrong. (e.g the invoices customer didn't exist on the database, or the currency of the invoice was different from the customer currency) that the automated invoice handling system won't be able to handle this invoice. So probably the stuff of the theoretical company would need to go manually handle the invoices with status FATAL_ERROR.
-- ERROR. This status will mean that something went wrong on the charging of the invoice (e.g Network error, or the Payment provider was unsuccessful to charge the invoice), but we could retry to handle this invoice again. There is going to be a scheduler that will run every hour fetching all invoices with status ERROR and tries to handle them until they are going to be marked as PAID. 
+- ERROR. This status means that something went wrong on the charging of the invoice (e.g Network error), but we could retry to handle this invoice again later. There is going to be a scheduler that will run every hour fetching all invoices with status ERROR and tries to handle them until they get paid. 
+- FATAL_ERROR. This status means that something went so wrong. (e.g the invoices customer didn't exist on the database, or the currency of the invoice was different from the customer currency) that the automated invoice handling system won't be able to handle this invoice. So probably the staff of the theoretical company would need to go manually handle the invoices with this status.
+- INSUFFICIENT_FUNDS. This status means that the customer had insufficient funds on their account, and the invoice could not be charged. In that case the subscription of the user must not be renewed until the customer has sufficient funds. 
 
 ## Antaeus
 
