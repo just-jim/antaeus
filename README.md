@@ -1,3 +1,9 @@
+## Thought Process
+
+In this point of the development I decided to handle the exceptions that may occur during the charging process of the invoices. The basic idea is that if during the charging process something goes wrong, the invoice will acquire a status of either:
+- FATAL_ERROR. This status will mean that something went so wrong. (e.g the invoices customer didn't exist on the database, or the currency of the invoice was different from the customer currency) that the automated invoice handling system won't be able to handle this invoice. So probably the stuff of the theoretical company would need to go manually handle the invoices with status FATAL_ERROR.
+- ERROR. This status will mean that something went wrong on the charging of the invoice (e.g Network error, or the Payment provider was unsuccessful to charge the invoice), but we could retry to handle this invoice again. There is going to be a scheduler that will run every hour fetching all invoices with status ERROR and tries to handle them until they are going to be marked as PAID. 
+
 ## Antaeus
 
 Antaeus (/ænˈtiːəs/), in Greek mythology, a giant of Libya, the son of the sea god Poseidon and the Earth goddess Gaia. He compelled all strangers who were passing through the country to wrestle with him. Whenever Antaeus touched the Earth (his mother), his strength was renewed, so that even if thrown to the ground, he was invincible. Heracles, in combat with him, discovered the source of his strength and, lifting him up from Earth, crushed him to death.
