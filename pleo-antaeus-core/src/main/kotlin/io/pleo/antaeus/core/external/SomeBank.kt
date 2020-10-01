@@ -27,7 +27,7 @@ class SomeBank : PaymentProvider {
             throw NetworkException()
         }
 
-        //Randomly with a chance of 30% return false to simulate customer insufficient funds
-        return (Random.nextInt(from=0,until = 100) <= 30)
+        //Randomly with a chance of 10% return false to simulate customer insufficient funds
+        return (Random.nextInt(from=0,until = 100) <= 10)
     }
 }

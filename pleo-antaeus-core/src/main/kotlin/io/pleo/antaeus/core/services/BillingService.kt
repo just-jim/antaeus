@@ -16,6 +16,9 @@ class BillingService(
     private val invoiceService : InvoiceService,
     private val customerService: CustomerService
 ) {
+
+    private val currencyExchange : CurrencyExchangeService = CurrencyExchangeService()
+
     fun run() {
 
         // Fetching the pending invoices
@@ -37,6 +40,14 @@ class BillingService(
             //Get the customer
             val customer = customerService.fetch(invoice.customerId)
             logger.info("Customer with id: ${customer.id} fetched")
+
+            //Before charging the invoice convert the currency of the invoice to the current customer currency
+            if(invoice.amount.currency != customer.currency)
+            {
+                logger.info("The invoice currency (${invoice.amount.currency}) wasn't matching customers currency (${customer.currency}).")
+                currencyExchange.modifyInvoiceAmountToProperCurrency(invoice,customer)
+                logger.info("The invoice amount was modified to: "+String.format("%.2f",invoice.amount.value)+" "+invoice.amount.currency)
+            }
 
             //Try to charge the invoice amount to the customer
             val payment = paymentProvider.charge(invoice,customer)
