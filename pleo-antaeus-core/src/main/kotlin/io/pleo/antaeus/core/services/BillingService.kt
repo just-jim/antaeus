@@ -1,13 +1,11 @@
 package io.pleo.antaeus.core.services
 
-import io.pleo.antaeus.core.exceptions.CurrencyMismatchException
-import io.pleo.antaeus.core.exceptions.CustomerNotFoundException
-import io.pleo.antaeus.core.exceptions.NetworkException
-import io.pleo.antaeus.core.exceptions.UnsuccessfulPaymentException
+import io.pleo.antaeus.core.exceptions.*
 import io.pleo.antaeus.core.external.PaymentProvider
 import io.pleo.antaeus.models.Invoice
 import io.pleo.antaeus.models.InvoiceStatus
 import mu.KotlinLogging
+import java.util.concurrent.locks.ReentrantLock
 
 private val logger = KotlinLogging.logger {}
 
@@ -18,36 +16,78 @@ class BillingService(
 ) {
 
     private val currencyExchange : CurrencyExchangeService = CurrencyExchangeService()
+    private val invoiceProcessingLock = ReentrantLock()
 
-    fun runMonthly() {
+    fun processPendingInvoices() {
+        try {
+            // Lock the invoice processing lock
+            invoiceProcessingLock.lock()
 
-        // Fetching the pending invoices
-        val pendingInvoices = invoiceService.fetchPending()
-        logger.info{"Found ${pendingInvoices.count()} pending invoices"}
+            // Fetching the pending invoices
+            val pendingInvoices = invoiceService.fetchPending()
+            logger.info{"Found ${pendingInvoices.count()} pending invoices"}
 
-        // Processing the pending invoices
-        pendingInvoices.forEach {
-            processInvoice(it)
+            // Processing the pending invoices
+            pendingInvoices.forEach {
+                processInvoice(it)
+            }
+        }
+        finally {
+            // Un-lock the invoice processing lock
+            invoiceProcessingLock.unlock()
         }
     }
 
-    fun runHourly(){
+    fun processFailedInvoices(){
 
-        // Fetching the failed invoices
-        val failedInvoices = invoiceService.fetchFailed()
-        logger.info{"Found ${failedInvoices.count()} failed invoices to retry charging"}
+        try{
+            // Lock the invoice processing lock
+            invoiceProcessingLock.lock()
 
-        // Processing the pending invoices
-        failedInvoices.forEach {
-            processInvoice(it)
+            // Fetching the failed invoices
+            val failedInvoices = invoiceService.fetchFailed()
+            logger.info{"Found ${failedInvoices.count()} failed invoices to retry charging"}
+
+            // Processing the pending invoices
+            failedInvoices.forEach {
+                processInvoice(it)
+            }
         }
+        finally {
+            // Un-lock the invoice processing lock
+            invoiceProcessingLock.unlock()
+        }
+    }
 
+    fun processSpecificInvoice(invoiceId: Int)
+    {
+        try {
+            // Lock the invoice processing lock
+            invoiceProcessingLock.lock()
+
+            // Fetching the specific invoice
+            val invoice = invoiceService.fetch(invoiceId)
+            logger.info{"Invoice with id ${invoice.id} was found"}
+
+            processInvoice(invoice)
+
+        }
+        catch (e: InvoiceNotFoundException)
+        {
+            logger.info("There is no invoice with id $invoiceId.")
+        }
+        finally {
+            // Un-lock the invoice processing lock
+            invoiceProcessingLock.unlock()
+        }
     }
 
     private fun processInvoice(invoice: Invoice){
 
-        if(invoice.status == InvoiceStatus.PAID)
+        if(invoice.status == InvoiceStatus.PAID) {
+            logger.info{"Invoice: ${invoice.id} is already paid"}
             return
+        }
 
         try {
             logger.info{"~~~~~~~~~~~~"}

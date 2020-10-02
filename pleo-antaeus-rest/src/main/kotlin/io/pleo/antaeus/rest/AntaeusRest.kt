@@ -122,7 +122,7 @@ class AntaeusRest(
                         path("pending_invoices") {
                             // URL: /rest/v1/billing/pending_invoices
                             get {
-                                billingService.runMonthly()
+                                billingService.processPendingInvoices()
                                 it.json("Billing service run (for invoices with status pending)")
                             }
                         }
@@ -130,8 +130,16 @@ class AntaeusRest(
                         path("failed_invoices") {
                             // URL: /rest/v1/billing/failed_invoices
                             get {
-                                billingService.runHourly()
+                                billingService.processFailedInvoices()
                                 it.json("Billing retry service run (for invoices with status error)")
+                            }
+                        }
+
+                        path("invoice") {
+                            // URL: /rest/v1/billing/invoice/{:id}
+                            get(":id") {
+                                billingService.processSpecificInvoice(it.pathParam("id").toInt())
+                                it.json("Billing the invoice with id: "+it.pathParam("id"))
                             }
                         }
                     }

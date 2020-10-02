@@ -30,7 +30,7 @@ class Scheduler(private val billingService: BillingService) {
         monthlyTimer = Timer("MonthlySchedule", false).schedule(time = firstOfNextMonth) {
             try {
                 nextFirstOfMonth = firstOfNextMonth
-                billingService.runMonthly()
+                billingService.processPendingInvoices()
             }
             catch (e: Exception) {
                 logger.error("Billing failed with error: ${e.message}")
@@ -74,7 +74,7 @@ class Scheduler(private val billingService: BillingService) {
         {
             try {
                 lastHourlyRun = now()
-                billingService.runHourly()
+                billingService.processFailedInvoices()
             } catch (e: Exception) {
                 logger.error("Billing of failed invoices failed with error: ${e.message}")
             }

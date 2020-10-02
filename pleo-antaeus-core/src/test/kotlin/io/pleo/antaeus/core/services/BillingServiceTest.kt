@@ -45,49 +45,49 @@ class BillingServiceTest {
     @Test
     fun `Successful payment provider charge`() {
         every { paymentProvider.charge(any(),any()) } returns true
-        billingService.runMonthly()
+        billingService.processPendingInvoices()
         assert(pendingInvoice.status == InvoiceStatus.PAID)
     }
 
     @Test
     fun `Payment provider charge failed due to insufficient funds`() {
         every { paymentProvider.charge(any(),any()) } returns false
-        billingService.runMonthly()
+        billingService.processPendingInvoices()
         assert(pendingInvoice.status == InvoiceStatus.INSUFFICIENT_FUNDS)
     }
 
     @Test
     fun `Payment provider charge network error`() {
         every { paymentProvider.charge(any(),any()) } throws NetworkException()
-        billingService.runMonthly()
+        billingService.processPendingInvoices()
         assert(pendingInvoice.status == InvoiceStatus.ERROR)
     }
 
     @Test
     fun `Payment provider charge missing user`() {
         every { paymentProvider.charge(any(),any()) } throws CustomerNotFoundException(customer.id)
-        billingService.runMonthly()
+        billingService.processPendingInvoices()
         assert(pendingInvoice.status == InvoiceStatus.FATAL_ERROR)
     }
 
     @Test
     fun `Payment provider charge currency mismatch`() {
         every { paymentProvider.charge(any(),any()) } throws CurrencyMismatchException(invoice.id,customer.id)
-        billingService.runMonthly()
+        billingService.processPendingInvoices()
         assert(pendingInvoice.status == InvoiceStatus.FATAL_ERROR)
     }
 
     @Test
     fun `Will not charge paid invoices`() {
         every { invoiceService.fetchPending() } returns listOf(paidInvoice)
-        billingService.runMonthly()
+        billingService.processPendingInvoices()
         verify(exactly = 0) { paymentProvider.charge(any(),any()) }
     }
 
     @Test
     fun `Will convert the currency if customer currency mismatch the invoice's currency`() {
         every { customerService.fetch(any()) } returns customerWithWrongCurrency
-        billingService.runMonthly()
+        billingService.processPendingInvoices()
         assert(pendingInvoice.amount.currency == customerWithWrongCurrency.currency)
     }
 }

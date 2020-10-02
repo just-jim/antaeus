@@ -1,6 +1,7 @@
 ## Thought Process
 
-#### First Steps (Day 1)
+###(Day 1)
+#### First Steps
 In order to get familiarized with Kotlin language and the challenge project I spend some time exploring the project and taking some courses online on how to use Kotlin properly. After exploring the project, I got familiarised with the existing codebase and understood what is where, and how everything communicated. Then I started creating a rough plan on how to structure the project. This rough plan was:
 Implement the billing functionality
 Create a scheduler (every 1st of month) to process pending invoices
@@ -19,10 +20,13 @@ In order to avoid getting rejected payments due to currency mismatch, I implemen
 To make the whole project work as intended there must be a scheduler. My initial thought would be to use a cronjob that would call an endpoint every 1st of the month (0 0 1 * *). Then I realized that calling an end-point has limitations and vulnerabilities that have to be avoided in a serious task such as billing invoices. So to avoid using the endpoint as the initialization of the scheduler process I decided to implement a more native to the Kotlin project approach and after conducting research on how to implement a native scheduler, I decided to use the java.util.Timer class. Timer class has a schedule() method to schedule when you want to run a function. So i implemented 2 schedulers:
 - A monthly scheduler that will run every 1st of the month, and it will charge all the pending invoices. 
 - An hourly scheduler that will run every hour and will try to charge any invoice that failed to get charged in the past. (due to Network errors, etc)
-#### Unit Tests (Day 2)
+###(Day 2)
+#### Unit Tests 
 At this point the need to be sure that everything runs and will run as intended is getting bigger. So I implemented a series of unit tests for the BillingService and the CurrencyExchangeService to be sure that the invoices will get the propper status after any incident and thus they are going to be handled appropriately. Some other safety scenarios were also checked, like not being able to charge by mistake an already paid invoice, and that the currency of an invoice will be converted to the customer's invoice when there is a mismatch.
 #### Improvements on scheduler
 After creating the unit test, I realized that the scheduler is the core of the project. If the scheduler stops working it must be easy and fast to make it run again. At the beginning I exposed 2 end-points to the REST API in order to get information on the scheduler status for both hourly and monthly schedulers. Afterwards I exposed more end-point to be able to manually start and stop each scheduler. With this combination of end-points, in the system that this project would run, we could externally automate a process to check the schedulers status and if any of the schedulers is down, start it again so the invoices will keep getting handled.
+#### Locks
+By thinking what are going to be the needs of an administrator of such a project I realized that a moderator would probably want to have the option to handle a specific invoice on demand. For that purpose I implemented another end-point to handle a specific invoice based on it’s id. After extensive testing on the whole project I realized that if the volume of invoices is big enough the process of handling all the pending invoices could take a while. And now that we have exposed end-points to trigger manual handling of invoices, the 2 processes could run (in extreme cases) simultaneously and charge the same invoice twice, or modify it’s status differently. To prevent that and ensure robustness of the project I added a ReentrantLock to queue the processes that are going to modify the invoices.
 
 
 ## Antaeus
