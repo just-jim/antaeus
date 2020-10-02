@@ -1,6 +1,6 @@
 ## Thought Process
 
-#### First Steps
+#### First Steps (Day 1)
 In order to get familiarized with Kotlin language and the challenge project I spend some time exploring the project and taking some courses online on how to use Kotlin properly. After exploring the project, I got familiarised with the existing codebase and understood what is where, and how everything communicated. Then I started creating a rough plan on how to structure the project. This rough plan was:
 Implement the billing functionality
 Create a scheduler (every 1st of month) to process pending invoices
@@ -19,6 +19,8 @@ In order to avoid getting rejected payments due to currency mismatch, I implemen
 To make the whole project work as intended there must be a scheduler. My initial thought would be to use a cronjob that would call an endpoint every 1st of the month (0 0 1 * *). Then I realized that calling an end-point has limitations and vulnerabilities that have to be avoided in a serious task such as billing invoices. So to avoid using the endpoint as the initialization of the scheduler process I decided to implement a more native to the Kotlin project approach and after conducting research on how to implement a native scheduler, I decided to use the java.util.Timer class. Timer class has a schedule() method to schedule when you want to run a function. So i implemented 2 schedulers:
 - A monthly scheduler that will run every 1st of the month, and it will charge all the pending invoices. 
 - An hourly scheduler that will run every hour and will try to charge any invoice that failed to get charged in the past. (due to Network errors, etc)
+#### Unit Tests (Day 2)
+At this point the need to be sure that everything runs and will run as intended is getting bigger. So I implemented a series of unit tests for the BillingService and the CurrencyExchangeService to be sure that the invoices will get the propper status after any incident and thus they are going to be handled appropriately. Some other safety scenarios were also checked, like not being able to charge by mistake an already paid invoice, and that the currency of an invoice will be converted to the customer's invoice when there is a mismatch.
 
 
 ## Antaeus

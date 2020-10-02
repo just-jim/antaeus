@@ -46,6 +46,9 @@ class BillingService(
 
     private fun processInvoice(invoice: Invoice){
 
+        if(invoice.status == InvoiceStatus.PAID)
+            return
+
         try {
             logger.info{"~~~~~~~~~~~~"}
             logger.info{"Processing invoice with id: ${invoice.id} "}
