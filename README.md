@@ -3,10 +3,10 @@
 ###(Day 1)
 #### First Steps
 In order to get familiarized with Kotlin language and the challenge project I spend some time exploring the project and taking some courses online on how to use Kotlin properly. After exploring the project, I got familiarised with the existing codebase and understood what is where, and how everything communicated. Then I started creating a rough plan on how to structure the project. This rough plan was:
-Implement the billing functionality
-Create a scheduler (every 1st of month) to process pending invoices
-Create a scheduler (every hour) to retry process invoices that failed to process before
-Add Unit-Tests for the project
+- Implement the billing functionality
+- Create a scheduler (every 1st of month) to process pending invoices
+- Create a scheduler (every hour) to retry process invoices that failed to process before
+- Add Unit-Tests for the project
 #### Implementing the basics
 To begin with I implemented some functionality to fetch the pending invoices, and then a basic functionality to charge the invoices. To do so I made a mock PaymentProvider that would return all the possible exceptions in order to handle all of them appropriately.
 #### Handling Exceptions
