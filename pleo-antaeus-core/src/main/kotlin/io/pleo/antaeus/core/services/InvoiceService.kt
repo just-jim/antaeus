@@ -22,6 +22,10 @@ class InvoiceService(private val dal: AntaeusDal) {
         return dal.fetchInvoice(InvoiceStatus.PENDING)
     }
 
+    fun fetchFailed() : List<Invoice> {
+        return dal.fetchInvoice(InvoiceStatus.ERROR)
+    }
+
     fun updateInvoice(invoice: Invoice){
         dal.updateInvoice(invoice)
     }

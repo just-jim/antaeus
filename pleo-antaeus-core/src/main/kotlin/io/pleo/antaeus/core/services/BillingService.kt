@@ -19,7 +19,7 @@ class BillingService(
 
     private val currencyExchange : CurrencyExchangeService = CurrencyExchangeService()
 
-    fun run() {
+    fun runMonthly() {
 
         // Fetching the pending invoices
         val pendingInvoices = invoiceService.fetchPending()
@@ -31,12 +31,25 @@ class BillingService(
         }
     }
 
+    fun runHourly(){
+
+        // Fetching the failed invoices
+        val failedInvoices = invoiceService.fetchFailed()
+        logger.info{"Found ${failedInvoices.count()} failed invoices to retry charging"}
+
+        // Processing the pending invoices
+        failedInvoices.forEach {
+            processInvoice(it)
+        }
+
+    }
+
     private fun processInvoice(invoice: Invoice){
 
-        logger.info{"~~~~~~~~~~~~"}
-        logger.info{"Processing invoice with id: ${invoice.id} "}
-
         try {
+            logger.info{"~~~~~~~~~~~~"}
+            logger.info{"Processing invoice with id: ${invoice.id} "}
+
             //Get the customer
             val customer = customerService.fetch(invoice.customerId)
             logger.info("Customer with id: ${customer.id} fetched")
@@ -75,9 +88,10 @@ class BillingService(
             invoice.status = InvoiceStatus.INSUFFICIENT_FUNDS
             logger.info("The payment on the PaymentProvider wan unsuccessful. The customer has insufficient funds")
         }
-
-        // Update the invoice status in the DB
-        invoiceService.updateInvoice(invoice)
-        logger.info("The invoice updated it's status to ${invoice.status}")
+        finally{
+            // Update the invoice status in the DB
+            invoiceService.updateInvoice(invoice)
+            logger.info("The invoice updated it's status to ${invoice.status}")
+        }
     }
 }

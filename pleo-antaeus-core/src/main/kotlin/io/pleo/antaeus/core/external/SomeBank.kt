@@ -13,7 +13,7 @@ class SomeBank : PaymentProvider {
     override fun charge(invoice: Invoice, customer:Customer): Boolean {
 
         //Randomly with a chance of 5% throw a CustomerNotFoundException to simulate that the payment provider does not have this customer anymore
-        if(Random.nextInt(from=0,until = 100) <= 5){
+        if(Random.nextInt(from=0,until=100) <= 5){
             throw CustomerNotFoundException(customer.id)
         }
 
@@ -23,11 +23,11 @@ class SomeBank : PaymentProvider {
         }
 
         //Randomly with a chance of 5% throw a NetworkException to simulate a Network error
-        if(Random.nextInt(from=0,until = 100) <= 5){
+        if(Random.nextInt(from=0,until=100) <= 5){
             throw NetworkException()
         }
 
-        //Randomly with a chance of 10% return false to simulate customer insufficient funds
-        return (Random.nextInt(from=0,until = 100) <= 10)
+        //Randomly with a chance of 5% return false to simulate customer insufficient funds
+        return (Random.nextInt(from=0,until=100) <= 95)
     }
 }

@@ -13,8 +13,12 @@ In this point of the development I decided to handle the exceptions that may occ
 - ERROR. This status means that something went wrong on the charging of the invoice (e.g Network error), but we could retry to handle this invoice again later. There is going to be a scheduler that will run every hour fetching all invoices with status ERROR and try to handle them until they get paid.
 - FATAL_ERROR. This status means that something went so wrong. (e.g the invoices customer didn't exist on the database, or the currency of the invoice was different from the customer currency) that the automated invoice handling system won't be able to handle this invoice. So probably the staff of the theoretical company would need to go manually handle the invoices with this status.
 - INSUFFICIENT_FUNDS. This status means that the customer had insufficient funds on their account, and the invoice could not be charged. In that case the subscription of the user must not be renewed until the customer has sufficient funds.
- #### Currency Exchange Service 
+#### Currency Exchange Service 
 In order to avoid getting rejected payments due to currency mismatch, I implemented a CurrencyExchangeService in order to convert the invoice amount to the customer's currency. That doesn't mean that we won't get the CurrencyMismatchException ever, because the customer may have changed his currency in the PaymentProvider's DB, who in that case will return the CurrencyMismatchException. The CurrencyExchangeService will help the billing project in the case of a customer changing currency in our system/DB after an invoice was issued with his previous currency. 
+#### Scheduler
+To make the whole project work as intended there must be a scheduler. My initial thought would be to use a cronjob that would call an endpoint every 1st of the month (0 0 1 * *). Then I realized that calling an end-point has limitations and vulnerabilities that have to be avoided in a serious task such as billing invoices. So to avoid using the endpoint as the initialization of the scheduler process I decided to implement a more native to the Kotlin project approach and after conducting research on how to implement a native scheduler, I decided to use the java.util.Timer class. Timer class has a schedule() method to schedule when you want to run a function. So i implemented 2 schedulers:
+- A monthly scheduler that will run every 1st of the month, and it will charge all the pending invoices. 
+- An hourly scheduler that will run every hour and will try to charge any invoice that failed to get charged in the past. (due to Network errors, etc)
 
 
 ## Antaeus

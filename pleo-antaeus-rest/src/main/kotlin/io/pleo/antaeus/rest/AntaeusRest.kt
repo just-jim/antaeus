@@ -57,16 +57,19 @@ class AntaeusRest(
 
                 // V1
                 path("v1") {
-                    path("run") {
-                        // URL: /rest/v1/run
+                    path("process_pending") {
+                        // URL: /rest/v1/monthly
                         get {
-                            billingService.run()
-                            it.json("Billing service run")
+                            billingService.runMonthly()
+                            it.json("Billing service run (for invoices with status pending)")
                         }
+                    }
 
-                        // URL: /rest/v1/invoices/{:id}
-                        get(":id") {
-                            it.json(invoiceService.fetch(it.pathParam("id").toInt()))
+                    path("process_failed") {
+                        // URL: /rest/v1/hourly
+                        get {
+                            billingService.runHourly()
+                            it.json("Billing retry service run (for invoices with status error)")
                         }
                     }
 
