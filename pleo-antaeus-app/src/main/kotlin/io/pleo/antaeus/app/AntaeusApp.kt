@@ -68,10 +68,10 @@ fun main() {
     val scheduler = Scheduler(billingService)
 
     // Start the monthly scheduler
-    scheduler.startMonthlyScheduler()
+    //scheduler.startMonthlyScheduler()
 
     // Start the hourly scheduler
-    scheduler.startHourlyScheduler()
+    //scheduler.startHourlyScheduler()
 
     // Create REST web service
     AntaeusRest(

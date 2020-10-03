@@ -1,0 +1,2 @@
+0 0 1 * * curl 127.0.0.1:7000/rest/v1/billing/pending_invoices >> /var/log/cron.log 2>&1
+0 * * * * curl 127.0.0.1:7000/rest/v1/billing/failed_invoices >> /var/log/cron.log 2>&1

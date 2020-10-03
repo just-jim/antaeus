@@ -32,6 +32,8 @@ By thinking what are going to be the needs of an administrator of such a project
 At this point I was going through the possible needs of such a project, to realize that some very important variables were missing from the invoice and customer models. Fields such as the timestamp of the creation and latest modification of each instance, and the subscription status o a customer. So I added to the database the necessary fields and made sure they get the appropriate values when they need to.
 #### Setting customer subscription_status
 I realized that some kind of action should be taken when an invoice was unable to get charged due to insufficient funds in the customer account. It would make sense to mark that customer’s subscription status inactive in order to stop receiving the product services until the invoice gets paid successfully.
+#### Another scheduler approach
+While reading some theory about scheduler robustness I realized that another approach on the scheduler functionality could be implemented. Using a cron job would make the process of scheduling much more clean and less susceptible to failures. Having a cron job handling the schedule would eliminate the fear that the java Timer thread could die unexpectedly causing the billing scheduling to stop. So to demonstrate this functionality I modified the docker file to install cron and include the cronjob instructions to schedule the monthly and hourly schedulers. I tested the functionality in the docker container and it works just fine. 
 
 
 ## Antaeus
