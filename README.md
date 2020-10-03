@@ -30,6 +30,8 @@ By thinking what are going to be the needs of an administrator of such a project
 ### (Day 3)
 #### Updated DB fields
 At this point I was going through the possible needs of such a project, to realize that some very important variables were missing from the invoice and customer models. Fields such as the timestamp of the creation and latest modification of each instance, and the subscription status o a customer. So I added to the database the necessary fields and made sure they get the appropriate values when they need to.
+#### Setting customer subscription_status
+I realized that some kind of action should be taken when an invoice was unable to get charged due to insufficient funds in the customer account. It would make sense to mark that customer’s subscription status inactive in order to stop receiving the product services until the invoice gets paid successfully.
 
 
 ## Antaeus

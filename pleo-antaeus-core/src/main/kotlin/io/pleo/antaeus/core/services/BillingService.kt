@@ -4,6 +4,7 @@ import io.pleo.antaeus.core.exceptions.*
 import io.pleo.antaeus.core.external.PaymentProvider
 import io.pleo.antaeus.models.Invoice
 import io.pleo.antaeus.models.InvoiceStatus
+import io.pleo.antaeus.models.SubscriptionStatus
 import mu.KotlinLogging
 import java.util.concurrent.locks.ReentrantLock
 
@@ -108,12 +109,16 @@ class BillingService(
             }
 
             //Try to charge the invoice amount to the customer
-            val payment = paymentProvider.charge(invoice,customer)
-            logger.info("Invoice payment result: $payment")
+            val successfulPayment = paymentProvider.charge(invoice,customer)
+            logger.info("Invoice payment result: $successfulPayment")
 
-            //Check the payment result to throw exception in case it failed
-            if(!payment)
+            //Check if the payment was unsuccessful due to unsufficient funs and take the appropriate actions
+            if(!successfulPayment) {
+                // Set the customer subscription status to Inactive
+                customer.subscriptionStatus = SubscriptionStatus.INACTIVE
+                customerService.update(customer)
                 throw UnsuccessfulPaymentException()
+            }
 
             invoice.status = InvoiceStatus.PAID;
         }
