@@ -3,7 +3,7 @@ package io.pleo.antaeus.models
 enum class InvoiceStatus {
     PENDING,
     PAID,
+    FAILED,
     ERROR,
-    FATAL_ERROR,
     INSUFFICIENT_FUNDS
 }

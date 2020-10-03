@@ -16,7 +16,7 @@ class BillingServiceTest {
     //InvoiceStatus.values()[Random.nextInt(0, InvoiceStatus.values().size)]
     private val invoice = Invoice(1, 1, Money(BigDecimal(10),Currency.DKK), InvoiceStatus.PENDING)
     private val pendingInvoice = Invoice(1, 1, Money(BigDecimal(10),Currency.DKK), InvoiceStatus.PENDING)
-    private val failedInvoice = Invoice(1, 1, Money(BigDecimal(10),Currency.DKK), InvoiceStatus.ERROR)
+    private val failedInvoice = Invoice(1, 1, Money(BigDecimal(10),Currency.DKK), InvoiceStatus.FAILED)
     private val paidInvoice = Invoice(1, 1, Money(BigDecimal(10),Currency.DKK), InvoiceStatus.PAID)
 
     private val customer = Customer(1, Currency.DKK)
@@ -60,21 +60,21 @@ class BillingServiceTest {
     fun `Payment provider charge network error`() {
         every { paymentProvider.charge(any(),any()) } throws NetworkException()
         billingService.processPendingInvoices()
-        assert(pendingInvoice.status == InvoiceStatus.ERROR)
+        assert(pendingInvoice.status == InvoiceStatus.FAILED)
     }
 
     @Test
     fun `Payment provider charge missing user`() {
         every { paymentProvider.charge(any(),any()) } throws CustomerNotFoundException(customer.id)
         billingService.processPendingInvoices()
-        assert(pendingInvoice.status == InvoiceStatus.FATAL_ERROR)
+        assert(pendingInvoice.status == InvoiceStatus.ERROR)
     }
 
     @Test
     fun `Payment provider charge currency mismatch`() {
         every { paymentProvider.charge(any(),any()) } throws CurrencyMismatchException(invoice.id,customer.id)
         billingService.processPendingInvoices()
-        assert(pendingInvoice.status == InvoiceStatus.FATAL_ERROR)
+        assert(pendingInvoice.status == InvoiceStatus.ERROR)
     }
 
     @Test

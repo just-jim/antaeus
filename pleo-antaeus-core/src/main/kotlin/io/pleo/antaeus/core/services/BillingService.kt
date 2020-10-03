@@ -25,6 +25,7 @@ class BillingService(
 
             // Fetching the pending invoices
             val pendingInvoices = invoiceService.fetchPending()
+            logger.info{"================"}
             logger.info{"Found ${pendingInvoices.count()} pending invoices"}
 
             // Processing the pending invoices
@@ -46,6 +47,7 @@ class BillingService(
 
             // Fetching the failed invoices
             val failedInvoices = invoiceService.fetchFailed()
+            logger.info{"================"}
             logger.info{"Found ${failedInvoices.count()} failed invoices to retry charging"}
 
             // Processing the pending invoices
@@ -116,15 +118,15 @@ class BillingService(
             invoice.status = InvoiceStatus.PAID;
         }
         catch (e: CustomerNotFoundException){
-            invoice.status = InvoiceStatus.FATAL_ERROR
+            invoice.status = InvoiceStatus.ERROR
             logger.info("The customer ${invoice.customerId} of the invoice was not found.")
         }
         catch (e: CurrencyMismatchException){
-            invoice.status = InvoiceStatus.FATAL_ERROR
+            invoice.status = InvoiceStatus.ERROR
             logger.info("The currency of the customer does not match the currency of the invoice")
         }
         catch (e: NetworkException){
-            invoice.status = InvoiceStatus.ERROR
+            invoice.status = InvoiceStatus.FAILED
             logger.info("There was a network error while charging the invoice")
         }
         catch (e: UnsuccessfulPaymentException){

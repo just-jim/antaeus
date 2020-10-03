@@ -23,7 +23,7 @@ class InvoiceService(private val dal: AntaeusDal) {
     }
 
     fun fetchFailed() : List<Invoice> {
-        return dal.fetchInvoice(InvoiceStatus.ERROR)
+        return dal.fetchInvoice(InvoiceStatus.FAILED)
     }
 
     fun updateInvoice(invoice: Invoice){
