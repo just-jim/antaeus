@@ -10,17 +10,18 @@ import io.pleo.antaeus.core.external.PaymentProvider
 import io.pleo.antaeus.models.*
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
+import java.time.LocalDateTime.now
 
 class BillingServiceTest {
 
     //InvoiceStatus.values()[Random.nextInt(0, InvoiceStatus.values().size)]
-    private val invoice = Invoice(1, 1, Money(BigDecimal(10),Currency.DKK), InvoiceStatus.PENDING)
-    private val pendingInvoice = Invoice(1, 1, Money(BigDecimal(10),Currency.DKK), InvoiceStatus.PENDING)
-    private val failedInvoice = Invoice(1, 1, Money(BigDecimal(10),Currency.DKK), InvoiceStatus.FAILED)
-    private val paidInvoice = Invoice(1, 1, Money(BigDecimal(10),Currency.DKK), InvoiceStatus.PAID)
+    private val invoice = Invoice(1, 1, Money(BigDecimal(10),Currency.DKK), InvoiceStatus.PENDING,now(),now())
+    private val pendingInvoice = Invoice(1, 1, Money(BigDecimal(10),Currency.DKK), InvoiceStatus.PENDING,now(),now())
+    private val failedInvoice = Invoice(1, 1, Money(BigDecimal(10),Currency.DKK), InvoiceStatus.FAILED,now(),now())
+    private val paidInvoice = Invoice(1, 1, Money(BigDecimal(10),Currency.DKK), InvoiceStatus.PAID,now(),now())
 
-    private val customer = Customer(1, Currency.DKK)
-    private val customerWithWrongCurrency = Customer(1, Currency.EUR)
+    private val customer = Customer(1, Currency.DKK,SubscriptionStatus.ACTIVE,now(),now())
+    private val customerWithWrongCurrency = Customer(1, Currency.EUR,SubscriptionStatus.ACTIVE,now(),now())
 
     private val paymentProvider = mockk<PaymentProvider>() {
         every { charge(any(),any()) } returns true
@@ -32,7 +33,7 @@ class BillingServiceTest {
         every { fetchFailed() } returns listOf(failedInvoice)
     }
 
-    private val customerService = mockk<CustomerService>() {
+    private val customerService = mockk<CustomerService>(relaxed = true) {
         every { fetch(any()) } returns customer
     }
 
@@ -54,6 +55,7 @@ class BillingServiceTest {
         every { paymentProvider.charge(any(),any()) } returns false
         billingService.processPendingInvoices()
         assert(pendingInvoice.status == InvoiceStatus.INSUFFICIENT_FUNDS)
+        assert(customer.subscriptionStatus == SubscriptionStatus.INACTIVE)
     }
 
     @Test
