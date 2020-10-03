@@ -13,9 +13,14 @@ object InvoiceTable : Table() {
     val value = decimal("value", 1000, 2)
     val customerId = reference("customer_id", CustomerTable.id)
     val status = text("status")
+    val created_ts = text("created_ts")
+    val updated_ts = text("updated_ts")
 }
 
 object CustomerTable : Table() {
     val id = integer("id").autoIncrement().primaryKey()
     val currency = varchar("currency", 3)
+    val subscription_status = text("status")
+    val created_ts = text("created_ts")
+    val updated_ts = text("updated_ts")
 }

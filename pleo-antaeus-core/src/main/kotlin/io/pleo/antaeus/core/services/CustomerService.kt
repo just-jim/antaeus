@@ -16,4 +16,8 @@ class CustomerService(private val dal: AntaeusDal) {
     fun fetch(id: Int): Customer {
         return dal.fetchCustomer(id) ?: throw CustomerNotFoundException(id)
     }
+
+    fun update(customer: Customer){
+        dal.updateCustomer(customer)
+    }
 }

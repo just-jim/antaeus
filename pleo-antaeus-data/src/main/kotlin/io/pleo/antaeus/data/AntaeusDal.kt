@@ -7,13 +7,10 @@
 
 package io.pleo.antaeus.data
 
-import io.pleo.antaeus.models.Currency
-import io.pleo.antaeus.models.Customer
-import io.pleo.antaeus.models.Invoice
-import io.pleo.antaeus.models.InvoiceStatus
-import io.pleo.antaeus.models.Money
+import io.pleo.antaeus.models.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.*
+import java.time.LocalDateTime.now
 
 class AntaeusDal(private val db: Database) {
 
@@ -54,6 +51,8 @@ class AntaeusDal(private val db: Database) {
                     it[this.currency] = amount.currency.toString()
                     it[this.status] = status.toString()
                     it[this.customerId] = customer.id
+                    it[this.created_ts] = now().toString()
+                    it[this.updated_ts] = now().toString()
                 } get InvoiceTable.id
         }
 
@@ -66,6 +65,7 @@ class AntaeusDal(private val db: Database) {
                 it[this.value] = invoice.amount.value
                 it[this.currency] = invoice.amount.currency.toString()
                 it[this.status] = invoice.status.toString()
+                it[this.updated_ts] = now().toString()
             }
         }
     }
@@ -87,14 +87,26 @@ class AntaeusDal(private val db: Database) {
         }
     }
 
-    fun createCustomer(currency: Currency): Customer? {
+    fun createCustomer(currency: Currency, subscriptionStatus: SubscriptionStatus = SubscriptionStatus.ACTIVE): Customer? {
         val id = transaction(db) {
             // Insert the customer and return its new id.
             CustomerTable.insert {
                 it[this.currency] = currency.toString()
+                it[subscription_status] = subscriptionStatus.toString()
+                it[this.created_ts] = now().toString()
+                it[this.updated_ts] = now().toString()
             } get CustomerTable.id
         }
 
         return fetchCustomer(id)
+    }
+
+    fun updateCustomer(customer: Customer){
+        return transaction(db){
+            CustomerTable.update({CustomerTable.id eq customer.id}){
+                it[this.subscription_status] = customer.subscriptionStatus.toString()
+                it[this.updated_ts] = now().toString()
+            }
+        }
     }
 }

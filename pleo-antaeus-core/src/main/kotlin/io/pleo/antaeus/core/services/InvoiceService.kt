@@ -26,7 +26,7 @@ class InvoiceService(private val dal: AntaeusDal) {
         return dal.fetchInvoice(InvoiceStatus.FAILED)
     }
 
-    fun updateInvoice(invoice: Invoice){
+    fun update(invoice: Invoice){
         dal.updateInvoice(invoice)
     }
 }

@@ -135,7 +135,7 @@ class BillingService(
         }
         finally{
             // Update the invoice status in the DB
-            invoiceService.updateInvoice(invoice)
+            invoiceService.update(invoice)
             logger.info("The invoice updated it's status to ${invoice.status}")
         }
     }
