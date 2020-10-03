@@ -119,6 +119,12 @@ class BillingService(
                 customerService.update(customer)
                 throw UnsuccessfulPaymentException()
             }
+            else if(customer.subscriptionStatus == SubscriptionStatus.INACTIVE)
+            {
+                // Set the customer subscription status to active if the invoice of an inactive subscription managed to get paid
+                customer.subscriptionStatus = SubscriptionStatus.ACTIVE
+                customerService.update(customer)
+            }
 
             invoice.status = InvoiceStatus.PAID;
         }
