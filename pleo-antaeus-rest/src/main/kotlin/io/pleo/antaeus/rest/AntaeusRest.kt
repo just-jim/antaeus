@@ -138,7 +138,7 @@ class AntaeusRest(
                         path("invoice") {
                             // URL: /rest/v1/billing/invoice/{:id}
                             get(":id") {
-                                billingService.processSpecificInvoice(it.pathParam("id").toInt())
+                                billingService.processIndividualInvoice(it.pathParam("id").toInt())
                                 it.json("Billing the invoice with id: "+it.pathParam("id"))
                             }
                         }

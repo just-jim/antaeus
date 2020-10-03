@@ -60,18 +60,12 @@ fun main() {
     // Create core services
     val invoiceService = InvoiceService(dal = dal)
     val customerService = CustomerService(dal = dal)
-
-    // This is _your_ billing service to be included where you see fit
     val billingService = BillingService(paymentProvider = paymentProvider,invoiceService = invoiceService, customerService = customerService)
 
-    //instantiation of scheduler
+    // Start the scheduler
+    // *Note* In order to use the cron scheduler we have to comment the scheduler.start() to avoid having both scheduling systems run at the same time
     val scheduler = Scheduler(billingService)
-
-    // Start the monthly scheduler
-    //scheduler.startMonthlyScheduler()
-
-    // Start the hourly scheduler
-    //scheduler.startHourlyScheduler()
+    scheduler.start()
 
     // Create REST web service
     AntaeusRest(

@@ -21,4 +21,5 @@ RUN touch /var/log/cron.log
 
 EXPOSE 7000
 # When the container starts: build, test and run the app while starting the cron scheduler as well.
-CMD ./gradlew build && ./gradlew test && cron && ./gradlew run
+#CMD ./gradlew build && ./gradlew test && cron && ./gradlew run
+CMD ./gradlew build && ./gradlew test && ./gradlew run

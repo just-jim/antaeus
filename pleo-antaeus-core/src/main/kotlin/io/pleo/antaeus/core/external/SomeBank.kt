@@ -17,12 +17,12 @@ class SomeBank : PaymentProvider {
             throw CustomerNotFoundException(customer.id)
         }
 
-        //Randomly with a chance of 5% throw a CurrencyMismatchException to simulate that the customer changed his currency on the payment provider
+        //Randomly with a chance of 5% throw a CurrencyMismatchException to simulate that the customer changed his currency on his payment provider account
         if(customer.currency != invoice.amount.currency){
             throw CurrencyMismatchException(invoice.id,customer.id)
         }
 
-        //Randomly with a chance of 5% throw a NetworkException to simulate a Network error
+        //Randomly with a chance of 5% throw a NetworkException to simulate a network error
         if(Random.nextInt(from=0,until=100) <= 5){
             throw NetworkException()
         }
