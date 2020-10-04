@@ -18,10 +18,10 @@ private val logger = KotlinLogging.logger {}
  * If the charge fails due to a reason that could be bypassed on a future attempt it will get the status failed
  * to get handled later.
  * If the charge fails due to a reason that won't change if we attempt to charge the invoice in the future,
- * the invoice will get the status error and a moderator will have to handle this invoice manually
+ * the invoice will get the status error and an administrator will have to handle this invoice manually
  * after communicating with the customer or the paying provider according to the case.
  *
- * There are also exposed end-points to run the billing processes in order for moderators to be able to process
+ * There are also exposed end-points to run the billing processes in order for administrators to be able to process
  * individual invoices, or external schedulers to initiate the billing processes
  *
  * - /rest/v1/scheduler/billing/pending_invoices
@@ -107,9 +107,9 @@ class BillingService(
     /**
      * Process individual invoices
      *
-     * This function could be called manually by a moderator in order to try processing a specific invoice.
+     * This function could be called manually by an administrator in order to try processing a specific invoice.
      * A scenario that this could be useful is a cases where an invoice was marked as insufficient_funds and after
-     * communication of the moderator with the customer the customer informed that he now have sufficient funds.
+     * communication of the administrator with the customer, the customer informed that he now have sufficient funds.
      *
      * @param invoiceId the invoice id to get processed
      */
