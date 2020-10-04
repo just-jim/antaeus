@@ -1,6 +1,7 @@
 ## Thought Process
 
-###(Day 1)
+### (Day 1)
+
 #### First Steps
 In order to get familiarized with Kotlin language and the challenge project I spend some time exploring the project and taking some short courses online on how to use Kotlin properly. After exploring the project, I got familiarised with the existing codebase and understood what is where, and how everything is connected. Then I started creating a rough plan on how to structure the project. This rough plan was:
 - Implement the billing functionality
@@ -20,14 +21,18 @@ In order to avoid getting rejected payments due to currency mismatch, I implemen
 The scheduler is probably the most essential part of that project. The need of a robust scheduler that won’t fail and will initiate the process of billing each month like clockwork is the most important factor for a successful billing service. After conducting research on how to implement a native Kotlin scheduler, I decided to use the java.util.Timer class. The Timer class has a schedule() method that conveniently lets you schedule an exact date that you want a process to run. So as originally planned I implemented 2 schedulers:
 - A monthly scheduler that will run every 1st of the month, and it will charge all the pending invoices. 
 - An hourly scheduler that will run every hour and will try to charge any invoice that failed to get charged in the past. (due to Network errors, etc)
-###(Day 2)
+
+### (Day 2)
+
 #### Unit Tests 
 At this point the need to be sure that everything runs and will run as intended is getting bigger. So I implemented a series of unit tests for the BillingService and the CurrencyExchangeService to be sure that the invoices will get the propper status after any incident and thus they are going to be handled appropriately. Some other safety scenarios were also checked, like not being able to charge by mistake an already paid invoice, and that the currency of an invoice will be converted to the customer's invoice when there is a mismatch.
 #### Improvements on scheduler
 After creating the unit tests, I realized that the scheduler is the core of the project. If the scheduler stops working it must be easy and fast to make it run again. At the beginning I exposed 2 end-points to the REST API in order to get information on the scheduler status for both hourly and monthly schedulers. Afterwards I exposed more end-point to be able to manually start and stop each scheduler. With this combination of end-points, we could externally automate a process to check the schedulers status and if any of the schedulers is down, start it again so the invoices will keep getting handled.
 #### Locks
 By thinking what are going to be the needs in such a project I realized that an administrator would probably want to have the option to handle individual invoices on demand. For that purpose I implemented another end-point to handle individual invoices based on their id. After extensive testing on the whole project I realized that if the volume of invoices is big enough the process of handling all the pending invoices could take a while. And now that we have exposed end-points to trigger manual handling of invoices, the 2 processes could run (in extreme cases) simultaneously and charge the same invoice twice, or modify it’s status differently. To prevent that and ensure robustness of the project I added a ReentrantLock to queue the processes that are going to modify the invoices.
+
 ### (Day 3)
+
 #### Updated DB fields
 At this point I was going through the possible needs of such a project, to realize that some very important variables were missing from the invoice and customer models. Fields such as the timestamp of the creation and latest modification of each instance, and the subscription status of a customer. So I added to the database the necessary fields and made sure they get the appropriate values when they need to.
 #### Setting customer subscription_status
@@ -43,7 +48,9 @@ After exploring the interesting world of Kotlin I have to say that I really enjo
 - Improve the locking mechanism to not lock the whole invoice handling process but lock each individual invoice while it is handled. This is required in order to have the multithreaded implementation mentioned previously
 - An extensive logging system to collect all the information of any attempt of the service
 - An automated notification system to notify the customers with an email for unsuccessful charges. Possible even a grace period before deactivating the customer subscription in order for him to have a chance to pay a failed auto-charged invoice
-###The final design
+
+### The final design
+
 After 3 days implementing this project I ended up having a stable working billing service. I hope this explanation of how the project works, will help you navigate with ease through the code.
 
 The billing service project has 3 distinct functionalities:
